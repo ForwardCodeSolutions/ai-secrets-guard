@@ -22,11 +22,11 @@ jobs:
 
       - name: Run security scan
         run: |
-          ai-secrets-guard scan . --format json > scan-results.json || true
+          ai-secrets-guard scan src/ --format json > scan-results.json || true
           ai-secrets-guard report --input scan-results.json --output reports --format all
 
       - name: Check for critical/high findings
-        run: ai-secrets-guard scan . --fail-on high
+        run: ai-secrets-guard scan src/ --fail-on high
 
       - name: Upload reports
         if: always()
