@@ -18,7 +18,7 @@ jobs:
       - uses: astral-sh/setup-uv@v4
 
       - name: Install ai-secrets-guard
-        run: uv tool install ai-secrets-guard
+        run: uv tool install --from . ai-secrets-guard
 
       - name: Run security scan
         run: |
