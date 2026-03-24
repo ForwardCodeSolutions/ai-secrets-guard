@@ -51,8 +51,8 @@ def sample_scan_result(sample_findings: list[Finding]) -> ScanResult:
     return ScanResult(
         scan_id="TEST001",
         project_path="/test/project",
-        started_at=dt.datetime(2026, 1, 1, 0, 0, 0, tzinfo=dt.timezone.utc),
-        finished_at=dt.datetime(2026, 1, 1, 0, 0, 5, tzinfo=dt.timezone.utc),
+        started_at=dt.datetime(2026, 1, 1, 0, 0, 0, tzinfo=dt.UTC),
+        finished_at=dt.datetime(2026, 1, 1, 0, 0, 5, tzinfo=dt.UTC),
         findings=sample_findings,
     )
 
@@ -61,8 +61,8 @@ def sample_scan_result(sample_findings: list[Finding]) -> ScanResult:
 def sample_probe_result() -> ProbeResult:
     return ProbeResult(
         target_url="https://api.test.com/v1/chat",
-        started_at=dt.datetime(2026, 1, 1, 0, 0, 0, tzinfo=dt.timezone.utc),
-        finished_at=dt.datetime(2026, 1, 1, 0, 0, 10, tzinfo=dt.timezone.utc),
+        started_at=dt.datetime(2026, 1, 1, 0, 0, 0, tzinfo=dt.UTC),
+        finished_at=dt.datetime(2026, 1, 1, 0, 0, 10, tzinfo=dt.UTC),
         responses=[
             ProbeResponse(
                 payload_name="direct_override",

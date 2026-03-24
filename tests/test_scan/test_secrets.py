@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ai_secrets_guard.scan.secrets import PATTERNS, scan_file, scan_line, _redact
+from ai_secrets_guard.scan.secrets import PATTERNS, _redact, scan_file, scan_line
 
 
 class TestRedact:
@@ -26,13 +26,14 @@ class TestPatternCount:
 # Positive + negative tests for each provider
 # ---------------------------------------------------------------------------
 
+
 class TestOpenAI:
     def test_project_key(self) -> None:
         line = 'KEY = "sk-proj-' + "a" * 85 + '"'
         assert any(f.rule_id == "SEC-OPENAI-002" for f in scan_line(line, 1, "f"))
 
     def test_safe_sk_prefix(self) -> None:
-        assert not any(f.rule_id == "SEC-OPENAI-002" for f in scan_line('sk-proj-short', 1, "f"))
+        assert not any(f.rule_id == "SEC-OPENAI-002" for f in scan_line("sk-proj-short", 1, "f"))
 
 
 class TestOpenRouter:
@@ -52,7 +53,8 @@ class TestAnthropic:
         assert any(f.rule_id == "SEC-ANTHROPIC-001" for f in scan_line(line, 1, ".env"))
 
     def test_short_prefix_ignored(self) -> None:
-        assert not any(f.rule_id == "SEC-ANTHROPIC-001" for f in scan_line('sk-ant-api03-short', 1, "f"))
+        findings = scan_line("sk-ant-api03-short", 1, "f")
+        assert not any(f.rule_id == "SEC-ANTHROPIC-001" for f in findings)
 
 
 class TestHuggingFace:
@@ -61,7 +63,7 @@ class TestHuggingFace:
         assert any(f.rule_id == "SEC-HF-001" for f in scan_line(line, 1, "f"))
 
     def test_short_hf_ignored(self) -> None:
-        assert not any(f.rule_id == "SEC-HF-001" for f in scan_line('hf_short', 1, "f"))
+        assert not any(f.rule_id == "SEC-HF-001" for f in scan_line("hf_short", 1, "f"))
 
 
 class TestGoogleAI:
@@ -76,7 +78,7 @@ class TestGroq:
         assert any(f.rule_id == "SEC-GROQ-001" for f in scan_line(line, 1, ".env"))
 
     def test_short_gsk_ignored(self) -> None:
-        assert not any(f.rule_id == "SEC-GROQ-001" for f in scan_line('gsk_short', 1, "f"))
+        assert not any(f.rule_id == "SEC-GROQ-001" for f in scan_line("gsk_short", 1, "f"))
 
 
 class TestMistral:
@@ -105,7 +107,7 @@ class TestReplicate:
         assert any(f.rule_id == "SEC-REPLICATE-001" for f in scan_line(line, 1, "f"))
 
     def test_short_r8_ignored(self) -> None:
-        assert not any(f.rule_id == "SEC-REPLICATE-001" for f in scan_line('r8_abc', 1, "f"))
+        assert not any(f.rule_id == "SEC-REPLICATE-001" for f in scan_line("r8_abc", 1, "f"))
 
 
 class TestFireworks:
@@ -114,7 +116,7 @@ class TestFireworks:
         assert any(f.rule_id == "SEC-FIREWORKS-001" for f in scan_line(line, 1, "f"))
 
     def test_short_fw_ignored(self) -> None:
-        assert not any(f.rule_id == "SEC-FIREWORKS-001" for f in scan_line('fw_short', 1, "f"))
+        assert not any(f.rule_id == "SEC-FIREWORKS-001" for f in scan_line("fw_short", 1, "f"))
 
 
 class TestPerplexity:
@@ -123,7 +125,7 @@ class TestPerplexity:
         assert any(f.rule_id == "SEC-PERPLEXITY-001" for f in scan_line(line, 1, "f"))
 
     def test_short_pplx_ignored(self) -> None:
-        assert not any(f.rule_id == "SEC-PERPLEXITY-001" for f in scan_line('pplx-short', 1, "f"))
+        assert not any(f.rule_id == "SEC-PERPLEXITY-001" for f in scan_line("pplx-short", 1, "f"))
 
 
 class TestDeepSeek:
@@ -142,7 +144,7 @@ class TestLangSmith:
         assert any(f.rule_id == "SEC-LANGSMITH-001" for f in scan_line(line, 1, "f"))
 
     def test_short_ls_ignored(self) -> None:
-        assert not any(f.rule_id == "SEC-LANGSMITH-001" for f in scan_line('ls__short', 1, "f"))
+        assert not any(f.rule_id == "SEC-LANGSMITH-001" for f in scan_line("ls__short", 1, "f"))
 
 
 class TestPinecone:
@@ -179,11 +181,11 @@ class TestAWS:
         assert any(f.rule_id == "SEC-AWS-001" for f in scan_line(line, 1, "f"))
 
     def test_secret_access_key(self) -> None:
-        line = 'aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+        line = "aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
         assert any(f.rule_id == "SEC-AWS-002" for f in scan_line(line, 1, "f"))
 
     def test_non_akia_prefix_ignored(self) -> None:
-        assert not any(f.rule_id == "SEC-AWS-001" for f in scan_line('AKIDSHORT', 1, "f"))
+        assert not any(f.rule_id == "SEC-AWS-001" for f in scan_line("AKIDSHORT", 1, "f"))
 
 
 class TestWandb:

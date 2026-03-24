@@ -13,9 +13,7 @@ class TestScanner:
         assert result.finished_at is not None
 
     def test_full_scan_with_leaked_key(self, tmp_path: Path) -> None:
-        (tmp_path / "config.py").write_text(
-            'KEY = "sk-ant-api03-' + "x" * 95 + '"\n'
-        )
+        (tmp_path / "config.py").write_text('KEY = "sk-ant-api03-' + "x" * 95 + '"\n')
         result = run_scan(str(tmp_path))
         assert len(result.findings) >= 1
 
@@ -32,9 +30,7 @@ class TestScanner:
     def test_scan_excludes_git_dir(self, tmp_path: Path) -> None:
         git_dir = tmp_path / ".git"
         git_dir.mkdir()
-        (git_dir / "config.py").write_text(
-            'KEY = "sk-ant-api03-' + "z" * 95 + '"\n'
-        )
+        (git_dir / "config.py").write_text('KEY = "sk-ant-api03-' + "z" * 95 + '"\n')
         (tmp_path / "main.py").write_text("print(1)\n")
 
         result = run_scan(str(tmp_path))

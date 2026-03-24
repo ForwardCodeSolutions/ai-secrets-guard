@@ -30,8 +30,7 @@ _PATTERNS: list[InjectionPattern] = [
         severity=Severity.HIGH,
         title="Prompt override instruction",
         description=(
-            "Text instructs LLM to ignore prior instructions"
-            " — classic prompt injection vector"
+            "Text instructs LLM to ignore prior instructions — classic prompt injection vector"
         ),
     ),
     InjectionPattern(
@@ -80,8 +79,7 @@ _PATTERNS: list[InjectionPattern] = [
         severity=Severity.LOW,
         title="Encoding-based obfuscation",
         description=(
-            "References to encoding schemes that may be used"
-            " to obfuscate prompt injections"
+            "References to encoding schemes that may be used to obfuscate prompt injections"
         ),
     ),
     # --- Unsanitized input interpolation ---
@@ -147,8 +145,7 @@ _PATTERNS: list[InjectionPattern] = [
         severity=Severity.HIGH,
         title="Unsanitized data passed directly to LLM",
         description=(
-            "User-controlled data placed directly into LLM"
-            " messages/prompt without sanitization"
+            "User-controlled data placed directly into LLM messages/prompt without sanitization"
         ),
     ),
 ]

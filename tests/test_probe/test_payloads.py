@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import base64
 
-import pytest
-
 from ai_secrets_guard.core.models import ProbePayload
 from ai_secrets_guard.probe.payloads import (
     EXFILTRATION_PAYLOADS,
@@ -14,7 +12,6 @@ from ai_secrets_guard.probe.payloads import (
     get_all_payloads,
     get_payloads_by_category,
 )
-
 
 # ---------------------------------------------------------------------------
 # Category sizes
@@ -50,7 +47,8 @@ class TestPayloadStructure:
 
     def test_unique_payload_names(self) -> None:
         names = [p.name for p in get_all_payloads()]
-        assert len(names) == len(set(names)), f"Duplicate names: {[n for n in names if names.count(n) > 1]}"
+        dupes = [n for n in names if names.count(n) > 1]
+        assert len(names) == len(set(names)), f"Duplicate names: {dupes}"
 
     def test_all_messages_have_role_and_content(self) -> None:
         for p in get_all_payloads():

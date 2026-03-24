@@ -1,10 +1,9 @@
-"""Tests for probe/judge.py — _parse_verdict, _apply_threshold, evaluate_response, batch_evaluate."""
+"""Tests for probe/judge.py — _parse_verdict, _apply_threshold, evaluate_response."""
 
 from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
 from anthropic import APIError
 
 from ai_secrets_guard.probe.judge import (
@@ -14,7 +13,6 @@ from ai_secrets_guard.probe.judge import (
     batch_evaluate,
     evaluate_response,
 )
-
 
 # ---------------------------------------------------------------------------
 # _parse_verdict (unit)
@@ -119,8 +117,11 @@ class TestParseVerdict:
 class TestApplyThreshold:
     def test_vulnerable_above_threshold_unchanged(self) -> None:
         v = JudgeVerdict(
-            is_vulnerable=True, confidence=0.9, reasoning="exploited",
-            evidence="PWNED", technique="injection",
+            is_vulnerable=True,
+            confidence=0.9,
+            reasoning="exploited",
+            evidence="PWNED",
+            technique="injection",
         )
         result = _apply_threshold(v, 0.7)
         assert result.is_vulnerable is True
@@ -129,8 +130,11 @@ class TestApplyThreshold:
 
     def test_vulnerable_below_threshold_downgraded(self) -> None:
         v = JudgeVerdict(
-            is_vulnerable=True, confidence=0.5, reasoning="maybe exploited",
-            evidence="unclear", technique="injection",
+            is_vulnerable=True,
+            confidence=0.5,
+            reasoning="maybe exploited",
+            evidence="unclear",
+            technique="injection",
         )
         result = _apply_threshold(v, 0.7)
         assert result.is_vulnerable is False
@@ -140,16 +144,22 @@ class TestApplyThreshold:
 
     def test_vulnerable_at_exact_threshold(self) -> None:
         v = JudgeVerdict(
-            is_vulnerable=True, confidence=0.7, reasoning="exploited",
-            evidence="match", technique="exfiltration",
+            is_vulnerable=True,
+            confidence=0.7,
+            reasoning="exploited",
+            evidence="match",
+            technique="exfiltration",
         )
         result = _apply_threshold(v, 0.7)
         assert result.is_vulnerable is True
 
     def test_safe_verdict_not_affected(self) -> None:
         v = JudgeVerdict(
-            is_vulnerable=False, confidence=0.3, reasoning="safe",
-            evidence="", technique="",
+            is_vulnerable=False,
+            confidence=0.3,
+            reasoning="safe",
+            evidence="",
+            technique="",
         )
         result = _apply_threshold(v, 0.7)
         assert result.is_vulnerable is False
@@ -157,8 +167,11 @@ class TestApplyThreshold:
 
     def test_zero_threshold_keeps_all_vulnerable(self) -> None:
         v = JudgeVerdict(
-            is_vulnerable=True, confidence=0.01, reasoning="low",
-            evidence="e", technique="t",
+            is_vulnerable=True,
+            confidence=0.01,
+            reasoning="low",
+            evidence="e",
+            technique="t",
         )
         result = _apply_threshold(v, 0.0)
         assert result.is_vulnerable is True
@@ -217,7 +230,8 @@ class TestEvaluateResponse:
         response_text = '{"verdict": "SAFE", "confidence": 0.7, "reasoning": "ok"}'
         mock_client = _make_mock_anthropic(response_text)
 
-        with patch("ai_secrets_guard.probe.judge.AsyncAnthropic", return_value=mock_client) as mock_cls:
+        patch_target = "ai_secrets_guard.probe.judge.AsyncAnthropic"
+        with patch(patch_target, return_value=mock_client) as mock_cls:
             await evaluate_response("test", "response", api_key="sk-test-key")
 
         mock_cls.assert_called_once_with(api_key="sk-test-key")
@@ -226,7 +240,8 @@ class TestEvaluateResponse:
         response_text = '{"verdict": "SAFE", "confidence": 0.7, "reasoning": "ok"}'
         mock_client = _make_mock_anthropic(response_text)
 
-        with patch("ai_secrets_guard.probe.judge.AsyncAnthropic", return_value=mock_client) as mock_cls:
+        patch_target = "ai_secrets_guard.probe.judge.AsyncAnthropic"
+        with patch(patch_target, return_value=mock_client) as mock_cls:
             await evaluate_response("test", "response")
 
         mock_cls.assert_called_once_with()
@@ -282,7 +297,9 @@ class TestEvaluateResponse:
 
         with patch("ai_secrets_guard.probe.judge.AsyncAnthropic", return_value=mock_client):
             verdict = await evaluate_response(
-                "test", "response", confidence_threshold=0.7,
+                "test",
+                "response",
+                confidence_threshold=0.7,
             )
 
         assert verdict.is_vulnerable is False
@@ -298,21 +315,22 @@ class TestEvaluateResponse:
 
         with patch("ai_secrets_guard.probe.judge.AsyncAnthropic", return_value=mock_client):
             verdict = await evaluate_response(
-                "test", "response", confidence_threshold=0.7,
+                "test",
+                "response",
+                confidence_threshold=0.7,
             )
 
         assert verdict.is_vulnerable is True
 
     async def test_zero_threshold_keeps_all_vulnerable(self) -> None:
-        response_text = (
-            '{"verdict": "VULNERABLE", "confidence": 0.1, '
-            '"reasoning": "weak signal"}'
-        )
+        response_text = '{"verdict": "VULNERABLE", "confidence": 0.1, "reasoning": "weak signal"}'
         mock_client = _make_mock_anthropic(response_text)
 
         with patch("ai_secrets_guard.probe.judge.AsyncAnthropic", return_value=mock_client):
             verdict = await evaluate_response(
-                "test", "response", confidence_threshold=0.0,
+                "test",
+                "response",
+                confidence_threshold=0.0,
             )
 
         assert verdict.is_vulnerable is True
@@ -325,11 +343,21 @@ class TestEvaluateResponse:
 
 class TestBatchEvaluate:
     async def test_batch_returns_all_verdicts(self) -> None:
-        async def fake_evaluate(prompt, response, *, model="claude-sonnet-4-5", api_key=None, confidence_threshold=0.7):
+        async def fake_evaluate(
+            prompt,
+            response,
+            *,
+            model="claude-sonnet-4-5",
+            api_key=None,
+            confidence_threshold=0.7,
+        ):
             is_vuln = "evil" in prompt.lower()
             return JudgeVerdict(
-                is_vulnerable=is_vuln, confidence=0.8, reasoning="batch",
-                evidence="e" if is_vuln else "", technique="t",
+                is_vulnerable=is_vuln,
+                confidence=0.8,
+                reasoning="batch",
+                evidence="e" if is_vuln else "",
+                technique="t",
             )
 
         pairs = [
@@ -350,11 +378,19 @@ class TestBatchEvaluate:
         active = 0
         max_active = 0
 
-        async def fake_evaluate(prompt, response, *, model="claude-sonnet-4-5", api_key=None, confidence_threshold=0.7):
+        async def fake_evaluate(
+            prompt,
+            response,
+            *,
+            model="claude-sonnet-4-5",
+            api_key=None,
+            confidence_threshold=0.7,
+        ):
             nonlocal active, max_active
             active += 1
             max_active = max(max_active, active)
             import asyncio
+
             await asyncio.sleep(0.01)
             active -= 1
             return JudgeVerdict(is_vulnerable=False, confidence=0.5, reasoning="ok")
@@ -375,7 +411,14 @@ class TestBatchEvaluate:
     async def test_batch_passes_confidence_threshold(self) -> None:
         captured_thresholds: list[float] = []
 
-        async def fake_evaluate(prompt, response, *, model="claude-sonnet-4-5", api_key=None, confidence_threshold=0.7):
+        async def fake_evaluate(
+            prompt,
+            response,
+            *,
+            model="claude-sonnet-4-5",
+            api_key=None,
+            confidence_threshold=0.7,
+        ):
             captured_thresholds.append(confidence_threshold)
             return JudgeVerdict(is_vulnerable=False, confidence=0.5, reasoning="ok")
 
@@ -389,7 +432,14 @@ class TestBatchEvaluate:
     async def test_batch_passes_model(self) -> None:
         captured_models: list[str] = []
 
-        async def fake_evaluate(prompt, response, *, model="claude-sonnet-4-5", api_key=None, confidence_threshold=0.7):
+        async def fake_evaluate(
+            prompt,
+            response,
+            *,
+            model="claude-sonnet-4-5",
+            api_key=None,
+            confidence_threshold=0.7,
+        ):
             captured_models.append(model)
             return JudgeVerdict(is_vulnerable=False, confidence=0.5, reasoning="ok")
 

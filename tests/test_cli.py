@@ -38,17 +38,13 @@ class TestCli:
         assert "findings" in data
 
     def test_scan_with_finding_exits_1(self, tmp_path: Path) -> None:
-        (tmp_path / "leaked.py").write_text(
-            'KEY = "sk-ant-api03-' + "a" * 95 + '"\n'
-        )
+        (tmp_path / "leaked.py").write_text('KEY = "sk-ant-api03-' + "a" * 95 + '"\n')
         runner = CliRunner()
         result = runner.invoke(cli, ["scan", str(tmp_path), "--fail-on", "high"])
         assert result.exit_code == 1
 
     def test_scan_fail_on_critical_passes_for_high(self, tmp_path: Path) -> None:
-        (tmp_path / "leaked.py").write_text(
-            'KEY = "sk-ant-api03-' + "a" * 95 + '"\n'
-        )
+        (tmp_path / "leaked.py").write_text('KEY = "sk-ant-api03-' + "a" * 95 + '"\n')
         runner = CliRunner()
         result = runner.invoke(cli, ["scan", str(tmp_path), "--fail-on", "critical"])
         assert result.exit_code == 1
@@ -59,12 +55,18 @@ class TestCli:
 
         runner = CliRunner()
         out_dir = tmp_path / "reports"
-        result = runner.invoke(cli, [
-            "report",
-            "--input", str(input_file),
-            "--output", str(out_dir),
-            "--format", "all",
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "report",
+                "--input",
+                str(input_file),
+                "--output",
+                str(out_dir),
+                "--format",
+                "all",
+            ],
+        )
         assert result.exit_code == 0
         assert (out_dir / "report.html").exists()
         assert (out_dir / "report.json").exists()

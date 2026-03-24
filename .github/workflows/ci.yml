@@ -17,7 +17,7 @@ jobs:
 
       - uses: astral-sh/setup-uv@v4
 
-      - run: uv sync --all-extras
+      - run: uv sync --extra dev
 
       - name: Ruff lint
         run: uv run ruff check --output-format=github .
@@ -32,7 +32,7 @@ jobs:
 
       - uses: astral-sh/setup-uv@v4
 
-      - run: uv sync --all-extras
+      - run: uv sync --extra dev
 
       - name: Mypy
         run: uv run mypy src/
@@ -52,7 +52,7 @@ jobs:
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
 
-      - run: uv sync --all-extras
+      - run: uv sync --extra dev
 
       - name: Run tests with coverage
         run: |

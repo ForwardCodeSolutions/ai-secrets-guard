@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ai_secrets_guard.scan.deps import scan_requirements, VULNERABLE_PACKAGES
-
+from ai_secrets_guard.scan.deps import VULNERABLE_PACKAGES, scan_requirements
 
 # ---------------------------------------------------------------------------
 # Database completeness
 # ---------------------------------------------------------------------------
+
 
 class TestDatabase:
     def test_has_required_packages(self) -> None:
@@ -19,6 +19,7 @@ class TestDatabase:
 # ---------------------------------------------------------------------------
 # requirements.txt scanning
 # ---------------------------------------------------------------------------
+
 
 class TestRequirementsFile:
     def test_detects_vulnerable_langchain(self, tmp_path: Path) -> None:
@@ -55,6 +56,7 @@ class TestRequirementsFile:
 # pyproject.toml scanning
 # ---------------------------------------------------------------------------
 
+
 class TestPyprojectScanning:
     def test_detects_in_pyproject(self, tmp_path: Path) -> None:
         (tmp_path / "pyproject.toml").write_text(
@@ -72,6 +74,7 @@ class TestPyprojectScanning:
 # ---------------------------------------------------------------------------
 # NEW: langchain-core
 # ---------------------------------------------------------------------------
+
 
 class TestLangchainCore:
     def test_vulnerable(self, tmp_path: Path) -> None:
@@ -93,6 +96,7 @@ class TestLangchainCore:
 # NEW: flowise
 # ---------------------------------------------------------------------------
 
+
 class TestFlowise:
     def test_vulnerable(self, tmp_path: Path) -> None:
         (tmp_path / "requirements.txt").write_text("flowise==1.5.0\n")
@@ -108,6 +112,7 @@ class TestFlowise:
 # ---------------------------------------------------------------------------
 # NEW: gradio XSS
 # ---------------------------------------------------------------------------
+
 
 class TestGradioXSS:
     def test_vulnerable_old_gradio(self, tmp_path: Path) -> None:
@@ -127,6 +132,7 @@ class TestGradioXSS:
 # ---------------------------------------------------------------------------
 # NEW: llama-index path traversal
 # ---------------------------------------------------------------------------
+
 
 class TestLlamaIndexPathTraversal:
     def test_very_old_version(self, tmp_path: Path) -> None:
@@ -150,6 +156,7 @@ class TestLlamaIndexPathTraversal:
 # ---------------------------------------------------------------------------
 # Edge cases
 # ---------------------------------------------------------------------------
+
 
 class TestEdgeCases:
     def test_underscore_package_name(self, tmp_path: Path) -> None:

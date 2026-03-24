@@ -10,7 +10,6 @@ from ai_secrets_guard.report.html import render_html, write_html
 from ai_secrets_guard.report.json_report import render_json, write_json
 from ai_secrets_guard.report.markdown import render_markdown, write_markdown
 
-
 # ---------------------------------------------------------------------------
 # HTML Report
 # ---------------------------------------------------------------------------
@@ -79,7 +78,9 @@ class TestHtmlReport:
         assert "No findings" in html
 
     def test_with_probe_results(
-        self, sample_scan_result: ScanResult, sample_probe_result: ProbeResult,
+        self,
+        sample_scan_result: ScanResult,
+        sample_probe_result: ProbeResult,
     ) -> None:
         html = render_html(sample_scan_result, probe=sample_probe_result)
         assert "Probe Results" in html
@@ -108,18 +109,23 @@ class TestHtmlReport:
         assert "Custom Report Title" in html
 
     def test_write_creates_file(
-        self, sample_scan_result: ScanResult, tmp_path: Path,
+        self,
+        sample_scan_result: ScanResult,
+        tmp_path: Path,
     ) -> None:
         out = write_html(sample_scan_result, tmp_path / "out" / "report.html")
         assert out.exists()
         assert out.stat().st_size > 0
 
     def test_write_with_probe(
-        self, sample_scan_result: ScanResult, sample_probe_result: ProbeResult,
+        self,
+        sample_scan_result: ScanResult,
+        sample_probe_result: ProbeResult,
         tmp_path: Path,
     ) -> None:
         out = write_html(
-            sample_scan_result, tmp_path / "report.html",
+            sample_scan_result,
+            tmp_path / "report.html",
             probe=sample_probe_result,
         )
         content = out.read_text()
@@ -189,7 +195,9 @@ class TestJsonReport:
         assert probe["responses"] == []
 
     def test_has_probe_results_with_data(
-        self, sample_scan_result: ScanResult, sample_probe_result: ProbeResult,
+        self,
+        sample_scan_result: ScanResult,
+        sample_probe_result: ProbeResult,
     ) -> None:
         data = json.loads(render_json(sample_scan_result, probe=sample_probe_result))
         probe = data["probe_results"]
@@ -227,7 +235,9 @@ class TestJsonReport:
         assert data["score"]["grade"] == "A"
 
     def test_write_creates_file(
-        self, sample_scan_result: ScanResult, tmp_path: Path,
+        self,
+        sample_scan_result: ScanResult,
+        tmp_path: Path,
     ) -> None:
         out = write_json(sample_scan_result, tmp_path / "report.json")
         assert out.exists()
@@ -235,11 +245,14 @@ class TestJsonReport:
         assert "metadata" in data
 
     def test_write_with_probe(
-        self, sample_scan_result: ScanResult, sample_probe_result: ProbeResult,
+        self,
+        sample_scan_result: ScanResult,
+        sample_probe_result: ProbeResult,
         tmp_path: Path,
     ) -> None:
         out = write_json(
-            sample_scan_result, tmp_path / "report.json",
+            sample_scan_result,
+            tmp_path / "report.json",
             probe=sample_probe_result,
         )
         data = json.loads(out.read_text())
@@ -325,7 +338,9 @@ class TestMarkdownReport:
         assert "# My Custom Report" in md
 
     def test_with_probe_results(
-        self, sample_scan_result: ScanResult, sample_probe_result: ProbeResult,
+        self,
+        sample_scan_result: ScanResult,
+        sample_probe_result: ProbeResult,
     ) -> None:
         md = render_markdown(sample_scan_result, probe=sample_probe_result)
         assert "Probe Results" in md
@@ -338,7 +353,9 @@ class TestMarkdownReport:
         assert "Probe Results" not in md
 
     def test_write_creates_file(
-        self, sample_scan_result: ScanResult, tmp_path: Path,
+        self,
+        sample_scan_result: ScanResult,
+        tmp_path: Path,
     ) -> None:
         out = write_markdown(sample_scan_result, tmp_path / "report.md")
         assert out.exists()
@@ -346,11 +363,14 @@ class TestMarkdownReport:
         assert "CRITICAL" in content
 
     def test_write_with_probe(
-        self, sample_scan_result: ScanResult, sample_probe_result: ProbeResult,
+        self,
+        sample_scan_result: ScanResult,
+        sample_probe_result: ProbeResult,
         tmp_path: Path,
     ) -> None:
         out = write_markdown(
-            sample_scan_result, tmp_path / "report.md",
+            sample_scan_result,
+            tmp_path / "report.md",
             probe=sample_probe_result,
         )
         content = out.read_text()

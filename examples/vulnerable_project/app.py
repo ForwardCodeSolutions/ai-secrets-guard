@@ -23,7 +23,7 @@ def chat():
 
     messages = [{"role": "system", "content": system_prompt + user_input}]
 
-    template = "Answer the following question: {question}".format(question=user_input)
+    template = f"Answer the following question: {user_input}"
 
     return {"response": template, "prompt_used": prompt, "messages": messages}
 
@@ -35,4 +35,4 @@ def admin():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True)  # noqa: S201

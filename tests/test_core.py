@@ -1,19 +1,15 @@
 from __future__ import annotations
 
-import datetime as dt
-
-from ai_secrets_guard.core.severity import Severity
+from ai_secrets_guard.core.config import AppConfig, ProbeConfig
 from ai_secrets_guard.core.models import Finding, ProbeResponse, ProbeResult, ScanResult
-from ai_secrets_guard.core.config import AppConfig, ScanConfig, ProbeConfig
 from ai_secrets_guard.core.scoring import (
     OWASP_LLM_TOP_10,
     OWASPCoverage,
-    ScoreResult,
-    compute_score,
-    _score_to_grade,
-    _build_remediation,
     _clamp,
+    _score_to_grade,
+    compute_score,
 )
+from ai_secrets_guard.core.severity import Severity
 
 
 class TestSeverity:
@@ -106,8 +102,18 @@ class TestScoring:
 
     def test_critical_findings_raise_score(self) -> None:
         findings = [
-            Finding(rule_id="SEC-KEY-001", severity=Severity.CRITICAL, title="t", description="d"),
-            Finding(rule_id="SEC-KEY-002", severity=Severity.CRITICAL, title="t2", description="d2"),
+            Finding(
+                rule_id="SEC-KEY-001",
+                severity=Severity.CRITICAL,
+                title="t",
+                description="d",
+            ),
+            Finding(
+                rule_id="SEC-KEY-002",
+                severity=Severity.CRITICAL,
+                title="t2",
+                description="d2",
+            ),
         ]
         scan = ScanResult(findings=findings)
         result = compute_score(scan=scan)
@@ -129,8 +135,10 @@ class TestScoring:
             target_url="http://test",
             responses=[
                 ProbeResponse(
-                    payload_name="p1", raw_response="PWNED",
-                    is_vulnerable=True, technique="injection",
+                    payload_name="p1",
+                    raw_response="PWNED",
+                    is_vulnerable=True,
+                    technique="injection",
                 ),
             ],
         )
@@ -139,8 +147,18 @@ class TestScoring:
 
     def test_owasp_mapping_from_findings(self) -> None:
         findings = [
-            Finding(rule_id="SEC-OPENAI-001", severity=Severity.CRITICAL, title="t", description="d"),
-            Finding(rule_id="PI-IGNORE-001", severity=Severity.HIGH, title="t2", description="d2"),
+            Finding(
+                rule_id="SEC-OPENAI-001",
+                severity=Severity.CRITICAL,
+                title="t",
+                description="d",
+            ),
+            Finding(
+                rule_id="PI-IGNORE-001",
+                severity=Severity.HIGH,
+                title="t2",
+                description="d2",
+            ),
         ]
         scan = ScanResult(findings=findings)
         result = compute_score(scan=scan)
@@ -152,8 +170,10 @@ class TestScoring:
             target_url="http://test",
             responses=[
                 ProbeResponse(
-                    payload_name="p1", raw_response="leaked",
-                    is_vulnerable=True, technique="exfiltration",
+                    payload_name="p1",
+                    raw_response="leaked",
+                    is_vulnerable=True,
+                    technique="exfiltration",
                 ),
             ],
         )
@@ -172,8 +192,18 @@ class TestScoring:
 
     def test_remediation_includes_actions(self) -> None:
         findings = [
-            Finding(rule_id="SEC-KEY-001", severity=Severity.CRITICAL, title="Leaked key", description="d"),
-            Finding(rule_id="DEP-CVE-001", severity=Severity.HIGH, title="Old dep", description="d"),
+            Finding(
+                rule_id="SEC-KEY-001",
+                severity=Severity.CRITICAL,
+                title="Leaked key",
+                description="d",
+            ),
+            Finding(
+                rule_id="DEP-CVE-001",
+                severity=Severity.HIGH,
+                title="Old dep",
+                description="d",
+            ),
         ]
         scan = ScanResult(findings=findings)
         result = compute_score(scan=scan)
@@ -183,8 +213,18 @@ class TestScoring:
 
     def test_remediation_deduplicates_rule_ids(self) -> None:
         findings = [
-            Finding(rule_id="SEC-KEY-001", severity=Severity.CRITICAL, title="Leaked key", description="d"),
-            Finding(rule_id="SEC-KEY-001", severity=Severity.CRITICAL, title="Leaked key", description="d"),
+            Finding(
+                rule_id="SEC-KEY-001",
+                severity=Severity.CRITICAL,
+                title="Leaked key",
+                description="d",
+            ),
+            Finding(
+                rule_id="SEC-KEY-001",
+                severity=Severity.CRITICAL,
+                title="Leaked key",
+                description="d",
+            ),
         ]
         scan = ScanResult(findings=findings)
         result = compute_score(scan=scan)
@@ -196,8 +236,10 @@ class TestScoring:
             target_url="http://test",
             responses=[
                 ProbeResponse(
-                    payload_name="p1", raw_response="PWNED",
-                    is_vulnerable=True, technique="injection",
+                    payload_name="p1",
+                    raw_response="PWNED",
+                    is_vulnerable=True,
+                    technique="injection",
                 ),
             ],
         )
@@ -206,8 +248,18 @@ class TestScoring:
 
     def test_remediation_mcp_and_generic(self) -> None:
         findings = [
-            Finding(rule_id="MCP-PERM-ALL", severity=Severity.HIGH, title="MCP issue", description="d"),
-            Finding(rule_id="UNKNOWN-001", severity=Severity.LOW, title="Something", description="d"),
+            Finding(
+                rule_id="MCP-PERM-ALL",
+                severity=Severity.HIGH,
+                title="MCP issue",
+                description="d",
+            ),
+            Finding(
+                rule_id="UNKNOWN-001",
+                severity=Severity.LOW,
+                title="Something",
+                description="d",
+            ),
         ]
         scan = ScanResult(findings=findings)
         result = compute_score(scan=scan)
