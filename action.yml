@@ -1,0 +1,50 @@
+name: "AI Secrets Guard"
+description: "Scan AI/LLM projects for security vulnerabilities: leaked API keys, prompt injection, unsafe MCP configs"
+author: "GenaFCS"
+
+inputs:
+  path:
+    description: "Path to scan"
+    required: false
+    default: "."
+  fail-on:
+    description: "Minimum severity to fail the check (critical, high, medium, low)"
+    required: false
+    default: "high"
+  format:
+    description: "Output format (table, json)"
+    required: false
+    default: "json"
+
+outputs:
+  results:
+    description: "Path to JSON results file"
+    value: ${{ steps.scan.outputs.results }}
+  findings-count:
+    description: "Total number of findings"
+    value: ${{ steps.scan.outputs.count }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install ai-secrets-guard
+      shell: bash
+      run: pip install ai-secrets-guard
+
+    - name: Run scan
+      id: scan
+      shell: bash
+      run: |
+        ai-secrets-guard scan "${{ inputs.path }}" --format json > /tmp/ai-guard-results.json || true
+        echo "results=/tmp/ai-guard-results.json" >> "$GITHUB_OUTPUT"
+        count=$(python3 -c "import json; d=json.load(open('/tmp/ai-guard-results.json')); print(len(d.get('findings',[])))")
+        echo "count=$count" >> "$GITHUB_OUTPUT"
+
+    - name: Enforce severity threshold
+      shell: bash
+      run: ai-secrets-guard scan "${{ inputs.path }}" --fail-on "${{ inputs.fail-on }}"

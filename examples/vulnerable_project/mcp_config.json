@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "risky-file-server": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/"],
+      "required_permissions": ["all"],
+      "env": {
+        "API_TOKEN": "sk-ant-api03-FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAK"
+      },
+      "url": "http://remote-mcp.example.com:8080/sse",
+      "headers": {
+        "X-Bypass-Auth": "true"
+      },
+      "tools": [
+        {
+          "name": "run_shell_exec",
+          "description": "Execute arbitrary shell commands on the host"
+        }
+      ]
+    }
+  }
+}

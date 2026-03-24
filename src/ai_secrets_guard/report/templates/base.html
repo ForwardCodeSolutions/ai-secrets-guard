@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Secrets Guard Report{% endblock %}</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --border: #30363d;
+            --accent: #58a6ff;
+            --critical: #f85149;
+            --high: #f0883e;
+            --medium: #d29922;
+            --low: #58a6ff;
+            --info: #8b949e;
+            --success: #3fb950;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        header h1 { font-size: 1.75rem; font-weight: 600; }
+        header .meta { color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem; }
+        h2 { margin: 2rem 0 1rem; font-size: 1.35rem; font-weight: 600; }
+        h3 { margin: 1.2rem 0 0.6rem; font-size: 1.1rem; font-weight: 600; }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .summary-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+        .summary-card .count { font-size: 2rem; font-weight: 700; }
+        .summary-card .label { color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; }
+        .severity-critical .count { color: var(--critical); }
+        .severity-high .count { color: var(--high); }
+        .severity-medium .count { color: var(--medium); }
+        .severity-low .count { color: var(--low); }
+        .severity-info .count { color: var(--info); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        th {
+            background: var(--bg-tertiary);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+        tr:last-child td { border-bottom: none; }
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-critical { background: rgba(248,81,73,0.15); color: var(--critical); }
+        .badge-high { background: rgba(240,136,62,0.15); color: var(--high); }
+        .badge-medium { background: rgba(210,153,34,0.15); color: var(--medium); }
+        .badge-low { background: rgba(88,166,255,0.15); color: var(--low); }
+        .badge-info { background: rgba(139,148,158,0.15); color: var(--info); }
+        code {
+            background: var(--bg-tertiary);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+        /* Executive summary gauge */
+        .exec-summary {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .gauge-container { text-align: center; flex-shrink: 0; }
+        .gauge-label { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; }
+        .grade-display {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 0.3rem 0;
+        }
+        .top-findings { flex: 1; min-width: 280px; }
+        .top-findings ul { list-style: none; padding: 0; }
+        .top-findings li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        .top-findings li:last-child { border-bottom: none; }
+        /* Collapsible finding cards */
+        .finding-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+        }
+        .finding-card.border-critical { border-left: 3px solid var(--critical); }
+        .finding-card.border-high { border-left: 3px solid var(--high); }
+        .finding-card.border-medium { border-left: 3px solid var(--medium); }
+        .finding-card.border-low { border-left: 3px solid var(--low); }
+        .finding-card.border-info { border-left: 3px solid var(--info); }
+        .finding-header {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        .finding-header:hover { background: var(--bg-tertiary); }
+        .finding-body {
+            display: none;
+            padding: 0.75rem 1rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .finding-body.open { display: block; }
+        .code-snippet {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.5rem 0.75rem;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        .line-highlight { color: var(--critical); font-weight: 600; }
+        /* Probe results */
+        .verdict-safe { color: var(--success); font-weight: 600; }
+        .verdict-vuln { color: var(--critical); font-weight: 600; }
+        .confidence-bar {
+            display: inline-block;
+            width: 60px;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            vertical-align: middle;
+        }
+        .confidence-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        /* OWASP checklist */
+        .owasp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .owasp-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .owasp-item.covered { border-color: var(--critical); }
+        .owasp-check { font-size: 1rem; }
+        /* Remediation */
+        .remediation-list {
+            list-style: none;
+            padding: 0;
+        }
+        .remediation-list li {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.6rem 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+        footer {
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% block content %}{% endblock %}
+        <footer>
+            Generated by <strong>ai-secrets-guard</strong> v{{ version }} &mdash; {{ generated_at }}
+        </footer>
+    </div>
+    <script>
+    document.querySelectorAll('.finding-header').forEach(function(h){
+        h.addEventListener('click',function(){
+            var body=h.nextElementSibling;
+            if(body)body.classList.toggle('open');
+        });
+    });
+    </script>
+</body>
+</html>

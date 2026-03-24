@@ -1,0 +1,36 @@
+name: AI Secrets Guard Scan
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+
+      - name: Install ai-secrets-guard
+        run: uv tool install ai-secrets-guard
+
+      - name: Run security scan
+        run: |
+          ai-secrets-guard scan . --format json > scan-results.json || true
+          ai-secrets-guard report --input scan-results.json --output reports --format all
+
+      - name: Check for critical/high findings
+        run: ai-secrets-guard scan . --fail-on high
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: reports/
